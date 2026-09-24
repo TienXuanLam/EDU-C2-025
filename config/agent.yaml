@@ -1,0 +1,20 @@
+# AgentRegistry static manifest. Runtime values belong in config/config.yaml.
+id: "EDU-C2-025"
+name: "ComplianceTrainingCompletionTrackingGapReportAgent"
+namespace: "EDU"
+version: "0.1.0"
+enabled: true
+category: "Cat 2"
+generation_mode: "llm"
+industry: "EDU"
+base_type: "DocGenerationAgent"
+class: "src.graph.graph.ComplianceTrainingCompletionTrackingGapReportAgent"
+required_trust_level: "VERIFIED_EXTERNAL"
+# ReportDraftNode resolves these per-invocation via
+# InvocationContext.from_state(state).secrets.require(...) — not read at
+# graph-construction time, so the server still boots without them
+# (deterministic_only mode is unaffected; full_report mode fails closed
+# until they're provisioned).
+requires:
+  secrets: ["AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT", "AZURE_OPENAI_DEPLOYMENT"]
+  extras: ["openai"]

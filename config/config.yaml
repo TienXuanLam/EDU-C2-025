@@ -1,0 +1,51 @@
+# Runtime parameters (distinct from config/agent.yaml, the static manifest)
+max_retry: 2
+memory_enabled: false
+timeout_s: 45
+
+# Compliance training gap-report configuration (proposal EngTemplate_EDU-C2-025.md
+# §10 Technical Feasibility #2 — "all rules embeddable directly in YAML config";
+# §11 Risk #3 mitigation — "customizable in YAML config so each company can
+# adjust to their own legal risk prioritization"). No external KB is used —
+# unlike some templates elsewhere in the fleet, this template's domain rules live entirely here.
+#
+# IMPORTANT — illustrative starting values, not sourced regulatory guidance:
+# completion-rate thresholds and regulatory risk weights below are illustrative
+# defaults the implementing engineer chose to make the pipeline runnable, NOT
+# figures taken from MHLW / CPPC / Fair Trade Commission source material or any
+# specific company's actual risk appetite (see README.md Known Limitations).
+# Every deploying company MUST review and override these before relying on the
+# generated report for audit or securities-disclosure purposes (risk #1/#3).
+thresholds:
+  harassment_prevention: 90.0
+  personal_data_protection: 90.0
+  occupational_safety: 95.0
+  whistleblower_protection: 85.0
+  antimonopoly_law: 85.0
+
+risk_weights:
+  harassment_prevention: 4.0
+  personal_data_protection: 5.0
+  occupational_safety: 5.0
+  whistleblower_protection: 3.0
+  antimonopoly_law: 4.0
+
+# A training_domain not present in `thresholds` above is not rejected (a typo
+# should not silently drop a business unit's data) — ThresholdCheckNode flags
+# it as "unconfigured_domain" so the compliance officer sees it needs
+# configuring, rather than either crashing or being silently skipped.
+default_risk_weight: 3.0  # used only if a configured (non-unconfigured) domain is somehow missing from risk_weights
+
+# GapClassifyNode severity bands — gap_pct = threshold - completion_rate (only
+# computed when completion_rate < threshold). Also illustrative/configurable
+# (risk #3): a gap_pct at or above critical_gap_threshold_pct is "critical",
+# at or above significant_gap_threshold_pct is "significant", any remaining
+# positive gap is "advisory".
+critical_gap_threshold_pct: 15.0
+significant_gap_threshold_pct: 5.0
+
+system_prompt: null  # null = built-in default instructions (src/services/llm_helper.py)
+
+llm:
+  temperature: 0.2
+  max_tokens: 1500
